@@ -1,0 +1,7 @@
+# Ignore everything
+*
+
+# But not these files...
+!README.md
+!.gitignore
+!Instructions.html
