@@ -1,7 +1,7 @@
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
-        <head>
-		<title>H5FDdsm</title>
-	</head>
+<body>
+<h1>Using H5FDdsm</h1>
 
 <p>First get all needed aptitude packages like gcc and make.
 </p>
@@ -16,7 +16,7 @@ If this is not nessesary some parts can be found in the repository:
 <p>These dependencies are needed to compile the sources:
 </p>
 <pre>
-sudo apt-get install gcc cmake cmake-curses-gui
+sudo apt-get install gcc cmake cmake-curses-gui make g++
 </pre>
 <p>Then get all the source files needed:
 </p>
@@ -46,6 +46,14 @@ cd blcr-0.8.5
 sudo cp /boot/System.map-x.x.x-xx-generic ~/h5fddsm/blcr-0.8.5/
 cd ~/h5fddsm/blcr-0.8.5/
 sudo chmod 777 System.map-x.x.x-xx-generic
+</pre>
+<p>We would like to create position-independent code for "future" integration into Microblx.<br>
+To do this we have to export flags:
+</p>
+<pre>
+export CFLAGS=-fPIC
+export CPPFLAGS=-fPIC
+export CXXFLAGS=-fPIC
 </pre>
 <p>Then configure to install locally
 </p>
@@ -81,6 +89,7 @@ ccmake ..
 <p>Set the following parameters:
 </p>
 <pre>
+BUILD_SHARED_LIBS                ON
 CMAKE_INSTALL_PREFIX             /home/(User)/local
 HDF5_BUILD_CPP_LIB               OFF
 HDF5_BUILD_FORTRAN               OFF
@@ -205,3 +214,6 @@ make -j4
 On the Receiver(Server) run H5FDdsmReceiver_cwrite_auto.
 On the Sender(Client) run H5FDdsmSender_cwrite_cread.
 </p>
+
+</body>
+</html>
