@@ -11,9 +11,9 @@
 <p>
 If this is not nessesary some parts can be found in the repository:
 </p>
-<pre>
+<pre><code>
 (sudo apt-get install libopenmpi1.5-2 mpich2 libmpich2-3)
-</pre>
+</code></pre>
 <!--
 <kbd>
 This is keyboard text
@@ -21,80 +21,81 @@ This is keyboard text
 -->
 <p>These dependencies are needed to compile the sources:
 </p>
-<pre>
+<pre><code>
 sudo apt-get install gcc cmake cmake-curses-gui make g++
-</pre>
+</code></pre>
 <p>Then get all the source files needed:
 </p>
-<pre>
+<pre><code>
 mkdir ~/h5fddsm
 cd ~/h5fddsm
 wget http://www.mpich.org/static/downloads/1.4rc2/mpich2-1.4rc2.tar.gz
 wget http://hpcforge.org/frs/download.php/59/h5fddsm-0.9.9.tar.bz2
 wget http://hpcforge.org/frs/download.php/57/hdf5-vfd-1.8.9.tar.bz2
 wget http://crd.lbl.gov/assets/Uploads/FTG/Projects/CheckpointRestart/downloads/blcr-0.8.5.tar.gz
-</pre>
+</code></pre>
 <p>Create a local folder into your home directory
 </p>
-<pre>
+<pre><code>
 mkdir ~/local
-</pre>
+</code></pre>
 <p>Start with the blcr, the library is needed for the h5fddsm install
 </p>
-<pre>
+<pre><code>
 cd ~/h5fddsm
 tar -xf blcr-0.8.5.tar.gz
 cd blcr-0.8.5
-</pre>
+</code></pre>
 <p>Copy the system map from the boot folder to the current directory and change it's permission
 </p>
-<pre>
+<pre><code>
 sudo cp /boot/System.map-x.x.x-xx-generic ~/h5fddsm/blcr-0.8.5/
 cd ~/h5fddsm/blcr-0.8.5/
 sudo chmod 777 System.map-x.x.x-xx-generic
-</pre>
+</code></pre>
 <p>We would like to create position-independent code for "future" integration into <a href="http://www.test.com"> Microblx</a>.<br>
 To do this we have to export flags:
 </p>
-<pre>
+<pre><code>
 export CFLAGS=-fPIC
 export CPPFLAGS=-fPIC
 export CXXFLAGS=-fPIC
-</pre>
+</code></pre>
 <p>Then configure to install locally
 </p>
-<pre>
+<pre><code>
 ./configure --prefix=/home/<var>User</var>/local --with-system-map=System.map-x.x.x-xx-generic
 make -j4
 make install
-</pre>
+</code></pre>
 <p>Now we start with the mpich source:
 </p>
-<pre>
+<pre><code>
 cd ~/h5fddsm
 tar -xf mpich2-1.4rc2.tar.gz
 cd mpich2-1.4rc2
-./configure --prefix=/home/<var>User</var>/local --enable-shared --enable-sharedlibs=gcc --disable-f77 --disable-fc
+./configure --prefix=/home/<var>User</var>/local --enable-shared \
+--enable-sharedlibs=gcc --disable-f77 --disable-fc
 make -j4
 make install
-</pre>
+</code></pre>
 <p>Now we start with the hdf5 source:
 </p>
-<pre>
+<pre><code>
 cd ~/h5fddsm
 tar -xf hdf5-vfd-1.8.9.tar.bz2
 cd hdf5-vfd-1.8.9
 mkdir build
 cd build
 ccmake ..
-</pre>
+</code></pre>
 <p>Press c to begin and after each change press c again.
 </p>
 <p>Press t to toggle advanced mode
 </p>
 <p>Set the following parameters:
 </p>
-<pre>
+<pre><code>
 BUILD_SHARED_LIBS                ON
 CMAKE_INSTALL_PREFIX             /home/<var>User</var>/local
 HDF5_BUILD_CPP_LIB               OFF
@@ -105,119 +106,159 @@ HDF5_ENABLE_HSIZET               ON
 HDF5_ENABLE_LARGE_FILE           ON
 HDF5_ENABLE_PARALLEL             ON
 HDF5_ENABLE_Z_LIB_SUPPORT        OFF
-</pre>
+</code></pre>
 <p>The following should be set automatically, these have to be set manual if a different version of mpi is already installed.
 </p>
-<pre>
+<pre><code>
 MPIEXEC                          /home/<var>User</var>/local/bin/mpiexec
 MPI_CXX_COMPILER                 /home/<var>User</var>/local/bin/mpicxx 
 MPI_CXX_INCLUDE_PATH             /home/<var>User</var>/local/include
-MPI_CXX_LIBRARIES                /home/<var>User</var>/local/lib/libmpichcxx.so;/home/<var>User</var>/local/lib/libmpich.so;/home/<var>User</var>/local/libopa.so;/home/<var>User</var>/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so
+
+MPI_CXX_LIBRARIES                /home/<var>User</var>/local/lib/libmpichcxx.so;
+                                 /home/<var>User</var>/local/lib/libmpich.so;
+				 /home/<var>User</var>/local/libopa.so;
+				 /home/<var>User</var>/local/lib/libmpl.so;
+				 /usr/lib/x86_64-linux-gnu/librt.so;
+				 /usr/lib/x86_64-linux-gnu/libpthread.so
+
 MPI_CXX_LINK_FLAGS                -Wl,-Bsymbolic-functions  -Wl,-z,relro
 MPI_C_COMPILER                   /home/<var>User</var>/local/bin/mpicc
 MPI_C_INCLUDE_PATH               /home/<var>User</var>/local/include
-MPI_C_LIBRARIES                  /home/<var>User</var>/local/lib/libmpich.so;/home/<var>User</var>/local/lib/libopa.so;/home/<var>User</var>/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so
+
+MPI_C_LIBRARIES                  /home/<var>User</var>/local/lib/libmpich.so;
+                                 /home/<var>User</var>/local/lib/libopa.so;
+				 /home/<var>User</var>/local/lib/libmpl.so;
+				 /usr/lib/x86_64-linux-gnu/librt.so;
+				 /usr/lib/x86_64-linux-gnu/libpthread.so
+
 MPI_C_LINK_FLAGS                  -Wl,-Bsymbolic-functions  -Wl,-z,relro
-MPI_EXTRA_LIBRARY                /home/<var>User</var>/local/lib/libmpich.so;/home/<var>User</var>/local/lib/libopa.so;/home/<var>User</var>/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so
+
+MPI_EXTRA_LIBRARY                /home/<var>User</var>/local/lib/libmpich.so;
+                                 /home/<var>User</var>/local/lib/libopa.so;
+				 /home/<var>User</var>/local/lib/libmpl.so;
+				 /usr/lib/x86_64-linux-gnu/librt.so;
+				 /usr/lib/x86_64-linux-gnu/libpthread.so
+
 MPI_LIBRARY                      /home/<var>User</var>/local/lib/libmpichcxx.so
-</pre>
+</code></pre>
 <p>Press c again and g to configure and exit
 </p>
 <p>Now make:
 </p>
-<pre>
+<pre><code>
 make -j4
 make install
-</pre>
+</code></pre>
 <p>Now we are at the h5fddsm part
 </p>
-<pre>
+<pre><code>
 cd ~/h5fddsm
 tar -xf h5fddsm-0.9.9.tar.bz2
 cd h5fddsm-0.9.9
 mkdir build
 cd build
 ccmake ..
-</pre>
+</code></pre>
 <p>Some paths have to be set:
 </p>
-<pre>
+<pre><code>
 HDF5_DIR                         /home/<var>User</var>/local/share/cmake/hdf5
 MPI_EXEC                         /home/<var>User</var>/local/bin/mpiexec
 MPI_CXX_COMPILER                 /home/<var>User</var>/local/bin/mpicxx
 MPI_CXX_INCLUDE_PATH             /home/<var>User</var>/local/include
-MPI_CXX_LIBRARIES                /home/<var>User</var>/local/lib/libmpich.so;/home/<var>User</var>/local/lib/libmpichcxx.so;/home/<var>User</var>/local/lib/libopa.so;/home/<var>User</var>/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so;/home/<var>User</var>/local/lib/libcr.so
+
+MPI_CXX_LIBRARIES                /home/<var>User</var>/local/lib/libmpich.so;
+                                 /home/<var>User</var>/local/lib/libmpichcxx.so;
+				 /home/<var>User</var>/local/lib/libopa.so;
+				 /home/<var>User</var>/local/lib/libmpl.so;
+				 /usr/lib/x86_64-linux-gnu/librt.so;
+				 /usr/lib/x86_64-linux-gnu/libpthread.so;
+				 /home/<var>User</var>/local/lib/libcr.so
+
 MPI_CXX_LINK_FLAGS                -Wl,-Bsymbolic-functions  -Wl,-z,relro
 MPI_C_COMPILER                   /home/<var>User</var>/local/bin/mpicc
 MPI_C_COMPILE_FLAGS               -D_FORTIFY_SOURCE=2
 MPI_C_INCLUDE_PATH               /home/<var>User</var>/local/include
-MPI_C_LIBRARIES                  /home/<var>User</var>/local/lib/libmpich.so;/home/<var>User</var>/local/lib/libopa.so;/home/<var>User</var>/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so
+
+MPI_C_LIBRARIES                  /home/<var>User</var>/local/lib/libmpich.so;
+                                 /home/<var>User</var>/local/lib/libopa.so;
+				 /home/<var>User</var>/local/lib/libmpl.so;
+				 /usr/lib/x86_64-linux-gnu/librt.so;
+				 /usr/lib/x86_64-linux-gnu/libpthread.so
+
 MPI_C_LINK_FLAGS                  -Wl,-Bsymbolic-functions  -Wl,-z,relro
-MPI_EXTRA_LIBRARY                /home/<var>User</var>/local/lib/libmpichcxx.so;/home/<var>User</var>/local/lib/libopa.so;/home/<var>User</var>/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so;/home/<var>User</var>/local/lib/libcr.so
+
+MPI_EXTRA_LIBRARY                /home/<var>User</var>/local/lib/libmpichcxx.so;
+                                 /home/<var>User</var>/local/lib/libopa.so;
+				 /home/<var>User</var>/local/lib/libmpl.so;
+				 /usr/lib/x86_64-linux-gnu/librt.so;
+				 /usr/lib/x86_64-linux-gnu/libpthread.so;
+				 /home/<var>User</var>/local/lib/libcr.so
+
 MPI_LIBRARY                      /home/<var>User</var>/local/lib/libmpich.so
-</pre>
+</code></pre>
 <p>Press c again and g to configure and exit
 </p>
 <p>Now make:
 </p>
-<pre>
+<pre><code>
 make -j4
-</pre>
+</code></pre>
 <p>We don't install this part because we want to recompile (make -j4 inside build directory) the changed test code (Testing directory).
 </p>
 <p>We can test the software by running a testprogram localy.
 </p>
 <p>On one terminal run:
 </p>
-<pre>
+<pre><code>
 cd ~/h5fddsm/h5fddsm-0.9.9/build/bin
 ./H5FDdsmReceiver_cwrite_auto
-</pre>
+</code></pre>
 <p>On a second terminal run:
 </p>
-<pre>
+<pre><code>
 cd ~/h5fddsm/h5fddsm-0.9.9/build/bin
 ./H5FDdsmReceiver_cwrite_auto
-</pre>
+</code></pre>
 <p>To create a transmission between computers inside a network we need to change a file inside the Testing directory.
 </p>
 <p>On the sender device do the following:
 </p>
-<pre>
+<pre><code>
 cd ~/h5fddsm/h5fddsm-0.9.9/Testing
 (insert favorite editor) H5FDdsmTest.cxx
-</pre>
+</code></pre>
 <p>Search for the "senderInit" function and add the following after the Create a DSM manager part:
 </p>
-<pre>
+<pre><code>
 // Create a DSM manager
 dsmManager->SetServerHostName("(IP OF SERVER(Receiver))"); //Server IP
 dsmManager->SetServerPort(11112); //Some port
-</pre>
+</code></pre>
 <p>recompile:
 </p>
-<pre>
+<pre><code>
 cd ~/h5fddsm/h5fddsm-0.9.9/build
 make -j4
-</pre>
+</code></pre>
 <p>On the receiver device do the following:
 </p>
-<pre>
+<pre><code>
 cd ~/h5fddsm/h5fddsm-0.9.9/Testing
 (insert favorite editor) H5FDdsmTest.cxx
-</pre>
+</code></pre>
 <p>Search for the "receiverInit" function and edit the following after the Create a DSM manager part:
 </p>
-<pre>
+<pre><code>
 dsmManager->SetServerHostName("default"); //Local IP
 dsmManager->SetServerPort(11112); //Same port 
-</pre>
+</code></pre>
 <p>recompile:
 </p>
-<pre>
+<pre><code>
 cd ~/h5fddsm/h5fddsm-0.9.9/build
 make -j4
-</pre>
+</code></pre>
 <p>We can now test the program into the network.
 On the Receiver(Server) run H5FDdsmReceiver_cwrite_auto.
 On the Sender(Client) run H5FDdsmSender_cwrite_cread.
