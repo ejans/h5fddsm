@@ -2,9 +2,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
 <body>
 <h1>Using H5FDdsm</h1>
-
-<p>First get all needed aptitude packages like gcc and make.
+<hr>
+<p>First get all needed aptitude packages like <b>gcc</b> and <b>make</b>.
 </p>
+<!-- This is a comment -->
 <p>Because we want to keep dependencies separated we compile everything localy.
 </p>
 <p>
@@ -13,6 +14,11 @@ If this is not nessesary some parts can be found in the repository:
 <pre>
 (sudo apt-get install libopenmpi1.5-2 mpich2 libmpich2-3)
 </pre>
+<!--
+<kbd>
+This is keyboard text
+</kbd>
+-->
 <p>These dependencies are needed to compile the sources:
 </p>
 <pre>
@@ -47,7 +53,7 @@ sudo cp /boot/System.map-x.x.x-xx-generic ~/h5fddsm/blcr-0.8.5/
 cd ~/h5fddsm/blcr-0.8.5/
 sudo chmod 777 System.map-x.x.x-xx-generic
 </pre>
-<p>We would like to create position-independent code for "future" integration into Microblx.<br>
+<p>We would like to create position-independent code for "future" integration into <a href="http://www.test.com"> Microblx</a>.<br>
 To do this we have to export flags:
 </p>
 <pre>
@@ -58,7 +64,7 @@ export CXXFLAGS=-fPIC
 <p>Then configure to install locally
 </p>
 <pre>
-./configure --prefix=/home/(User)/local --with-system-map=System.map-x.x.x-xx-generic
+./configure --prefix=/home/<var>User</var>/local --with-system-map=System.map-x.x.x-xx-generic
 make -j4
 make install
 </pre>
@@ -68,7 +74,7 @@ make install
 cd ~/h5fddsm
 tar -xf mpich2-1.4rc2.tar.gz
 cd mpich2-1.4rc2
-./configure --prefix=/home/(User)/local --enable-shared --enable-sharedlibs=gcc --disable-f77 --disable-fc
+./configure --prefix=/home/<var>User</var>/local --enable-shared --enable-sharedlibs=gcc --disable-f77 --disable-fc
 make -j4
 make install
 </pre>
@@ -90,7 +96,7 @@ ccmake ..
 </p>
 <pre>
 BUILD_SHARED_LIBS                ON
-CMAKE_INSTALL_PREFIX             /home/(User)/local
+CMAKE_INSTALL_PREFIX             /home/<var>User</var>/local
 HDF5_BUILD_CPP_LIB               OFF
 HDF5_BUILD_FORTRAN               OFF
 HDF5_BUILD_HL_LIB                ON
@@ -103,15 +109,17 @@ HDF5_ENABLE_Z_LIB_SUPPORT        OFF
 <p>The following should be set automatically, these have to be set manual if a different version of mpi is already installed.
 </p>
 <pre>
-MPIEXEC                          /home/(User)/local/bin/mpiexec
-MPI_CXX_COMPILER                 /home/(User)/local/bin/mpicxx 
-MPI_CXX_INCLUDE_PATH             /home/(User)/local/include
-MPI_CXX_LIBRARIES                /home/(User)/local/lib/libmpichcxx.so;/home/(User)/local/lib/libmpich.so;/home/(User)/local/libopa.so;/home/(User)/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so
-MPI_C_COMPILER                   /home/(User)/local/bin/mpicc
-MPI_C_INCLUDE_PATH               /home/(User)/local/include
-MPI_C_LIBRARIES                  /home/(User)/local/lib/libmpich.so;/home/(User)/local/libopa.so;/home/(User)/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so
-MPI_EXTRA_LIBRARY                /home/(User)/local/lib/libmpich.so;/home/(User)/local/libopa.so;/home/(User)/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so
-MPI_LIBRARY                      /home/(User)/local/lib/libmpichcxx.so
+MPIEXEC                          /home/<var>User</var>/local/bin/mpiexec
+MPI_CXX_COMPILER                 /home/<var>User</var>/local/bin/mpicxx 
+MPI_CXX_INCLUDE_PATH             /home/<var>User</var>/local/include
+MPI_CXX_LIBRARIES                /home/<var>User</var>/local/lib/libmpichcxx.so;/home/<var>User</var>/local/lib/libmpich.so;/home/<var>User</var>/local/libopa.so;/home/<var>User</var>/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so
+MPI_CXX_LINK_FLAGS                -Wl,-Bsymbolic-functions  -Wl,-z,relro
+MPI_C_COMPILER                   /home/<var>User</var>/local/bin/mpicc
+MPI_C_INCLUDE_PATH               /home/<var>User</var>/local/include
+MPI_C_LIBRARIES                  /home/<var>User</var>/local/lib/libmpich.so;/home/<var>User</var>/local/lib/libopa.so;/home/<var>User</var>/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so
+MPI_C_LINK_FLAGS                  -Wl,-Bsymbolic-functions  -Wl,-z,relro
+MPI_EXTRA_LIBRARY                /home/<var>User</var>/local/lib/libmpich.so;/home/<var>User</var>/local/lib/libopa.so;/home/<var>User</var>/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so
+MPI_LIBRARY                      /home/<var>User</var>/local/lib/libmpichcxx.so
 </pre>
 <p>Press c again and g to configure and exit
 </p>
@@ -134,19 +142,19 @@ ccmake ..
 <p>Some paths have to be set:
 </p>
 <pre>
-HDF5_DIR                         /home/(User)/local/share/cmake/hdf5
-MPI_EXEC                         /home/(User)/local/bin/mpiexec
-MPI_CXX_COMPILER                 /home/(User)/local/bin/mpicxx
-MPI_CXX_INCLUDE_PATH             /home/(User)/local/include
-MPI_CXX_LIBRARIES                /home/(User)/local/lib/libmpich.so;/home/(User)/local/lib/libmpichcxx.so;/home/(User)/local/lib/libopa.so;/home/(User)/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so;/home/(User)/local/lib/libcr.so
+HDF5_DIR                         /home/<var>User</var>/local/share/cmake/hdf5
+MPI_EXEC                         /home/<var>User</var>/local/bin/mpiexec
+MPI_CXX_COMPILER                 /home/<var>User</var>/local/bin/mpicxx
+MPI_CXX_INCLUDE_PATH             /home/<var>User</var>/local/include
+MPI_CXX_LIBRARIES                /home/<var>User</var>/local/lib/libmpich.so;/home/<var>User</var>/local/lib/libmpichcxx.so;/home/<var>User</var>/local/lib/libopa.so;/home/<var>User</var>/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so;/home/<var>User</var>/local/lib/libcr.so
 MPI_CXX_LINK_FLAGS                -Wl,-Bsymbolic-functions  -Wl,-z,relro
-MPI_C_COMPILER                   /home/(User)/local/bin/mpicc
+MPI_C_COMPILER                   /home/<var>User</var>/local/bin/mpicc
 MPI_C_COMPILE_FLAGS               -D_FORTIFY_SOURCE=2
-MPI_C_INCLUDE_PATH               /home/(User)/local/include
-MPI_C_LIBRARIES                  /home/(User)/local/lib/libmpich.so;/home/(User)/local/lib/libopa.so;/home/(User)/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so
+MPI_C_INCLUDE_PATH               /home/<var>User</var>/local/include
+MPI_C_LIBRARIES                  /home/<var>User</var>/local/lib/libmpich.so;/home/<var>User</var>/local/lib/libopa.so;/home/<var>User</var>/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so
 MPI_C_LINK_FLAGS                  -Wl,-Bsymbolic-functions  -Wl,-z,relro
-MPI_EXTRA_LIBRARY                /home/(User)/local/lib/libmpichcxx.so;/home/(User)/local/lib/libopa.so;/home/(User)/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so;/home/(User)/local/lib/libcr.so
-MPI_LIBRARY                      /home/(User)/local/lib/libmpich.so
+MPI_EXTRA_LIBRARY                /home/<var>User</var>/local/lib/libmpichcxx.so;/home/<var>User</var>/local/lib/libopa.so;/home/<var>User</var>/local/lib/libmpl.so;/usr/lib/x86_64-linux-gnu/librt.so;/usr/lib/x86_64-linux-gnu/libpthread.so;/home/<var>User</var>/local/lib/libcr.so
+MPI_LIBRARY                      /home/<var>User</var>/local/lib/libmpich.so
 </pre>
 <p>Press c again and g to configure and exit
 </p>
