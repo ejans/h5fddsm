@@ -4,8 +4,8 @@
   Module                  : H5FDdsmTest.cxx
 
   Authors:
-     John Biddiscombe     Jerome Soumagne
-     biddisco@cscs.ch     soumagne@cscs.ch
+     John Biddiscombe     Jerome Soumagne     Evert Jans
+     biddisco@cscs.ch     soumagne@cscs.ch    evert.jans@mech.kuleuven.be
 
   Copyright (C) CSCS - Swiss National Supercomputing Centre.
   You may use modify and and distribute this code freely providing
@@ -434,6 +434,145 @@ void receiverInit(int argc, char* argv[], H5FDdsmManager *dsmManager, MPI_Comm *
   if (staticInterComm) dsmManager->SetUseStaticInterComm(H5FD_DSM_TRUE);
   dsmManager->SetServerHostName("default");
   dsmManager->SetServerPort(22000);
+  dsmManager->Create();
+  H5FD_dsm_set_manager(dsmManager);
+
+  // Publish writes .dsm_config file with server name/port/mode in
+  // then spawns thread which waits for incoming connections
+  dsmManager->Publish();
+
+  //
+//  H5FDdsmFloat64 totalMB = (H5FDdsmFloat64) (dsmManager->GetDSMHandle()->GetTotalLength()/(1024*1024));
+//  H5FDdsmUInt32 serversize = (dsmManager->GetDSMHandle()->GetEndServerId() -
+//      dsmManager->GetDSMHandle()->GetStartServerId() + 1);
+//  if (rank == 0) {
+//    std::cout << "# DSM server memory size is: " << totalMB << " MBytes"
+//        << " (" << dsmManager->GetDSMHandle()->GetTotalLength() << " Bytes)" << std::endl;
+//    std::cout << "# DSM server process count: " <<  serversize << std::endl;
+//    if (dsmType == H5FD_DSM_TYPE_BLOCK_CYCLIC) std::cout << "Block size: "
+//        <<  dsmManager->GetDSMHandle()->GetBlockLength() << " Bytes" << std::endl;
+//  }
+
+  // The output comment below must not be deleted, it allows ctest to detect
+  // when the server is initialized
+  MPI_Barrier(*comm);
+  if (rank == 0) std::cout << "# Waiting for client..." << std::endl;
+  dsmManager->WaitForConnection();
+}
+
+//----------------------------------------------------------------------------
+void receiverInitIp(int argc, char* argv[], int port, char* hostName, H5FDdsmManager *dsmManager, MPI_Comm *comm)
+{
+  H5FDdsmInt32 provided, rank, size;
+  H5FDdsmUInt32 dsmSize = 16; // default MB
+  H5FDdsmInt32 commType = H5FD_DSM_COMM_SOCKET;
+  H5FDdsmInt32 dsmType = H5FD_DSM_TYPE_UNIFORM;
+  H5FDdsmUInt64 dsmBlockSize = 1024;
+  H5FDdsmBoolean staticInterComm = H5FD_DSM_FALSE;
+  //
+  // Receiver will spawn a thread to handle incoming data Put/Get requests
+  // we must therefore have MPI_THREAD_MULTIPLE
+  //
+  MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
+  // MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED, &provided);
+  MPI_Comm_rank(*comm, &rank);
+  MPI_Comm_size(*comm, &size);
+  //
+  if (rank == 0) {
+    if (provided != MPI_THREAD_MULTIPLE) {
+      std::cout << "# MPI_THREAD_MULTIPLE not set, you may need to recompile your "
+          << "MPI distribution with threads enabled" << std::endl;
+    }
+    else {
+      std::cout << "# MPI_THREAD_MULTIPLE is OK" << std::endl;
+    }
+  }
+
+  //
+  // Pause for debugging
+  //
+#ifdef H5FD_TEST_WAIT
+  if (rank == 0) {
+    std::cout << "Attach debugger if necessary, then press <enter>" << std::endl;
+    char c;
+    std::cin >> c;
+  }
+#endif
+
+  if (argc > 1) {
+    dsmSize = atol(argv[1]);
+  }
+
+  if (argc > 2) {
+    if (!strcmp(argv[2], "Socket")) {
+      commType = H5FD_DSM_COMM_SOCKET;
+      if (rank == 0) std::cout << "# SOCKET Inter-Communicator selected" << std::endl;
+    }
+    else if (!strcmp(argv[2], "MPI")) {
+      commType = H5FD_DSM_COMM_MPI;
+      dsmBlockSize = 32768;
+      if (rank == 0) std::cout << "# MPI Inter-Communicator selected" << std::endl;
+    }
+    else if (!strcmp(argv[2], "MPI_RMA")) {
+      commType = H5FD_DSM_COMM_MPI_RMA;
+      dsmBlockSize = 32768;
+      if (rank == 0) std::cout << "# MPI_RMA Inter-Communicator selected" << std::endl;
+    }
+    else if (!strcmp(argv[2], "DMAPP")) {
+      commType = H5FD_DSM_COMM_DMAPP;
+      staticInterComm = H5FD_DSM_TRUE;
+      dsmBlockSize = 2048;
+      if (rank == 0) std::cout << "# DMAPP Inter-Communicator selected" << std::endl;
+    }
+    else if (!strcmp(argv[2], "UGNI")) {
+      commType = H5FD_DSM_COMM_UGNI;
+      staticInterComm = H5FD_DSM_TRUE;
+      if (rank == 0) std::cout << "# UGNI Inter-Communicator selected" << std::endl;
+    }
+  }
+
+  if (argc > 3) {
+    if (!strcmp(argv[3], "Static") && (commType != H5FD_DSM_COMM_SOCKET)) {
+      staticInterComm = H5FD_DSM_TRUE;
+    }
+  }
+
+  if (staticInterComm) {
+    H5FDdsmInt32 color = 1; // 1 for server, 2 for client
+    MPI_Comm_split(MPI_COMM_WORLD, color, rank, comm);
+    MPI_Comm_rank(*comm, &rank);
+    MPI_Comm_size(*comm, &size);
+  }
+
+  if (argc > 4) {
+    if (!strcmp(argv[4], "Block")) {
+      dsmType = H5FD_DSM_TYPE_BLOCK_CYCLIC;
+      if (rank == 0) std::cout << "# Block Cyclic redistribution selected" << std::endl;
+    }
+    else if (!strcmp(argv[4], "RBlock")) {
+      dsmType = H5FD_DSM_TYPE_BLOCK_RANDOM;
+      if (rank == 0) std::cout << "# Random Block redistribution selected" << std::endl;
+    }
+  }
+
+  if (argc > 5) {
+    dsmBlockSize = atol(argv[5]);
+  }
+
+  //std::cout << "Process number " << rank << " of " << size - 1 << std::endl;
+
+  //
+  // Create a DSM manager
+  //
+  dsmManager->SetMpiComm(*comm);
+  dsmManager->SetLocalBufferSizeMBytes(dsmSize/size);
+  dsmManager->SetDsmType(dsmType);
+  dsmManager->SetBlockLength(dsmBlockSize);
+  dsmManager->SetInterCommType(commType);
+  dsmManager->SetIsServer(H5FD_DSM_TRUE);
+  if (staticInterComm) dsmManager->SetUseStaticInterComm(H5FD_DSM_TRUE);
+  dsmManager->SetServerHostName(hostName);
+  dsmManager->SetServerPort(port);
   dsmManager->Create();
   H5FD_dsm_set_manager(dsmManager);
 

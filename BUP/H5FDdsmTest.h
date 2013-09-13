@@ -4,8 +4,8 @@
   Module                  : H5FDdsmTest.h
 
   Authors:
-     John Biddiscombe     Jerome Soumagne
-     biddisco@cscs.ch     soumagne@cscs.ch
+     John Biddiscombe     Jerome Soumagne     Evert Jans
+     biddisco@cscs.ch     soumagne@cscs.ch    evert.jans@mech.kuleuven.be
 
   Copyright (C) CSCS - Swiss National Supercomputing Centre.
   You may use modify and and distribute this code freely providing
@@ -75,6 +75,7 @@ H5FDdsmFloat64 TestParticleRead(H5FDdsmConstString filename, H5FDdsmUInt64 ntupl
     MPI_Comm comm, H5FDdsmManager *dsmManager, bool checkresults=true);
 
 void receiverInit(int argc, char* argv[], H5FDdsmManager *dsmManager, MPI_Comm *comm);
+void receiverInitIp(int argc, char* argv[], int port, char* hostName, H5FDdsmManager *dsmManager, MPI_Comm *comm);
 void receiverFinalize(H5FDdsmManager *dsmManager, MPI_Comm *comm);
 
 void senderInit(int argc, char* argv[], H5FDdsmManager *dsmManager, MPI_Comm *comm,

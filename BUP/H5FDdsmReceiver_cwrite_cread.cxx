@@ -13,18 +13,30 @@
 //----------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
 
+        printf("%s\n", argv[1]);
+	printf("%s\n", argv[2]);
 	char fname_src[4] = "dsm";
 	char fname_dst[22] = "h5files/youbottest.h5";
 	char oname_src[6] = "State";
 	char oname_dst[6] = "State";
 	char oname_dst2[6];
+	char *ip;
+	char *port;
 	//strcat(oname_dst, gname);
 	int number = 1;
+	int port_int;
 	char num[4];
 
 	H5FDdsmManager *dsmManager = new H5FDdsmManager();
 	MPI_Comm comm = MPI_COMM_WORLD;
-	receiverInit(argc, argv, dsmManager, &comm);
+	//receiverInit(argc, argv, dsmManager, &comm);
+	ip = argv[1];
+	printf("ip: %s\n", ip);
+	port = argv[2];
+	printf("port: %s\n", port);
+	sscanf(port, "%u", &port_int);
+
+	receiverInitIp(argc, argv, port_int, ip, dsmManager, &comm);
 
 	while (dsmManager->WaitForUnlock() != H5FD_DSM_FAIL) {
 
