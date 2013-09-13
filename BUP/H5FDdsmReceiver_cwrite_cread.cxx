@@ -3,86 +3,105 @@
 #include <hdf5.h>
 #include "H5FDdsm.h"
 #include <cstdlib>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-//#include <sstream>
-#include <iostream>
+
+#include "h5tools.h"
+#include "h5tools_utils.h"
+#include <string.h>
+#include <stdlib.h>
 
 //----------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
 
-	argc = 1;
-	//char* fname = argv[1];
-	char fullname[9] = "h5files/";
-	//std::cout << argc << std::endl;
-	//std::cout << argv[1] << std::endl;
-        int number = 1;
-        //char* num;
-        char num[30];
-        char num2[30];
-        char name[30];
-	//strcat(fullname, fname);
+	char fname_src[4] = "dsm";
+	char fname_dst[22] = "h5files/youbottest.h5";
+	char oname_src[6] = "State";
+	char oname_dst[6] = "State";
+	char oname_dst2[6];
+	//strcat(oname_dst, gname);
+	int number = 1;
+	char num[4];
 
-	//std::cout << fullname << std::endl;
-	//std::cout << *fullname << std::endl;
 	H5FDdsmManager *dsmManager = new H5FDdsmManager();
 	MPI_Comm comm = MPI_COMM_WORLD;
 	receiverInit(argc, argv, dsmManager, &comm);
 
 	while (dsmManager->WaitForUnlock() != H5FD_DSM_FAIL) {
-		//H5FD_dsm_dump();
-                //num = "";
-                sprintf(num, "%d",number);
-                printf("%s\n", num);
-                strcpy(num2, num);
-                strcat(num2 ,".h5");
-                strcpy(name, fullname);
-                strcat(name, num2);
-                H5FD_dsm_lock();
 
+                sprintf(num, "%d",number);
+		printf("%s\n", num);
+		strcpy(oname_dst2, oname_dst);
+		strcat(oname_dst2, num);
 		//read the data from buffer by fapl_dsm
 		hid_t fapl = H5Pcreate(H5P_FILE_ACCESS);
 		H5Pset_fapl_dsm(fapl, comm, NULL, 0);
-		hid_t hdf5Handle = H5Fopen("dsm", H5F_ACC_RDONLY, fapl);
 
-		H5Pclose(fapl);
+		hid_t ocpl_id = (-1); /* Object copy property list */
+		hid_t lcpl_id = (-1); /* Link creation property list */
 
-		hid_t ocpl = H5Pcreate(H5P_OBJECT_COPY);
-		//hid_t desid = H5Fcreate("h5files/aaa.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-				//H5P_DEFAULT);
-		hid_t desid = H5Fcreate(name, H5F_ACC_TRUNC, H5P_DEFAULT,
-				H5P_DEFAULT);
-		hid_t lcpl = H5Pcreate(H5P_LINK_CREATE);
-		H5Pset_create_intermediate_group(lcpl,true);
-		// Close property list
-		//H5Ocopy(hdf5Handle, "State/ArmJointPosition/arm_jnt_pos", desid, "abc/www", ocpl, lcpl);
+		/*-------------------------------------------------------------------------
+		 * open input file
+		 *-------------------------------------------------------------------------*/
 
-		//H5Ocopy(hdf5Handle, "State/Timestamp/timestamp", desid, "State/Timestamp/timestamp", ocpl, lcpl);
-		H5Ocopy(hdf5Handle, "State/TimeStamp", desid, "State/TimeStamp", ocpl, lcpl);
-		//H5Ocopy(hdf5Handle, "State/ArmJointPosition/arm_jnt_pos", desid, "State/ArmJointPosition/arm_jnt_pos", ocpl, lcpl);
-		H5Ocopy(hdf5Handle, "State/BaseCartesianPosition/Vector/x", desid, "State/BaseCartesianPosition/Vector/x", ocpl, lcpl);
-		H5Ocopy(hdf5Handle, "State/BaseCartesianPosition/Vector/y", desid, "State/BaseCartesianPosition/Vector/y", ocpl, lcpl);
-		H5Ocopy(hdf5Handle, "State/BaseCartesianPosition/Vector/z", desid, "State/BaseCartesianPosition/Vector/z", ocpl, lcpl);
-		H5Ocopy(hdf5Handle, "State/BaseCartesianPosition/Rotation/rotation", desid, "State/BaseCartesianPosition/Rotation/rotation", ocpl, lcpl);
+		//  hid_t   fid_src = h5tools_fopen(fname_src, H5F_ACC_RDONLY, fapl, NULL, NULL, 0);
+		hid_t fid_src = H5Fopen(fname_src, H5F_ACC_RDONLY, fapl);
 
-		H5Ocopy(hdf5Handle, "State/Twist/LinearVelocity/x", desid, "State/Twist/LinearVelocity/x", ocpl, lcpl);
-		H5Ocopy(hdf5Handle, "State/Twist/LinearVelocity/y", desid, "State/Twist/LinearVelocity/y", ocpl, lcpl);
-		H5Ocopy(hdf5Handle, "State/Twist/LinearVelocity/z", desid, "State/Twist/LinearVelocity/z", ocpl, lcpl);
+		/*-------------------------------------------------------------------------
+		 * open output file
+		 *-------------------------------------------------------------------------*/
 
-		H5Ocopy(hdf5Handle, "State/Twist/RotationalVelocity/x", desid, "State/Twist/RotationalVelocity/x", ocpl, lcpl);
-		H5Ocopy(hdf5Handle, "State/Twist/RotationalVelocity/y", desid, "State/Twist/RotationalVelocity/y", ocpl, lcpl);
-		H5Ocopy(hdf5Handle, "State/Twist/RotationalVelocity/z", desid, "State/Twist/RotationalVelocity/z", ocpl, lcpl);
+		/* Attempt to open an existing HDF5 file first */
+		//	hid_t  fid_dst = h5tools_fopen(fname_dst, H5F_ACC_RDWR, H5P_DEFAULT, NULL, NULL, 0);
+		hid_t fid_dst = H5Fopen(fname_dst, H5F_ACC_RDWR, H5P_DEFAULT);
+		/* If we couldn't open an existing file, try creating file */
+		/* (use "EXCL" instead of "TRUNC", so we don't blow away existing non-HDF5 file) */
+		if (fid_dst < 0)
+			fid_dst = H5Fcreate(fname_dst, H5F_ACC_EXCL, H5P_DEFAULT,
+					H5P_DEFAULT);
 
-		H5Pclose(ocpl);
-		H5Fclose(hdf5Handle);
-		H5Fclose(desid);
-                std::cout << "File dumped!" << std::endl;
-                number++;
+		/*-------------------------------------------------------------------------
+		 * create property lists for copy
+		 *-------------------------------------------------------------------------*/
 
+		/* create property to pass copy options */
+		if ((ocpl_id = H5Pcreate(H5P_OBJECT_COPY)) < 0)
+			goto error;
+
+		/* Create link creation property list */
+		if ((lcpl_id = H5Pcreate(H5P_LINK_CREATE)) < 0) {
+			goto error;
+		} /* end if */
+
+		/*-------------------------------------------------------------------------
+		 * do the copy
+		 *-------------------------------------------------------------------------*/
+
+		if (H5Ocopy(fid_src, /* Source file or group identifier */
+		oname_src, /* Name of the source object to be copied */
+		fid_dst, /* Destination file or group identifier  */
+		oname_dst2, /* Name of the destination object  */
+		ocpl_id, /* Object copy property list */
+		lcpl_id) < 0) /* Link creation property list */
+			goto error;
+
+		/* close propertis */
+		if (H5Pclose(fapl) < 0)
+			goto error;
+		if (H5Pclose(ocpl_id) < 0)
+			goto error;
+		if (H5Pclose(lcpl_id) < 0)
+			goto error;
+
+		/* close files */
+		if (H5Fclose(fid_src) < 0)
+			goto error;
+		if (H5Fclose(fid_dst) < 0)
+			goto error;
+
+		error: printf("Error in copy...Exiting\n");
 		// Sync here
-		//MPI_Barrier(comm);
-                H5FD_dsm_unlock(H5FD_DSM_NOTIFY_NONE);
+		MPI_Barrier(comm);
+		number++;
 	}
 
 	receiverFinalize(dsmManager, &comm);
@@ -90,3 +109,4 @@ int main(int argc, char *argv[]) {
 	return (EXIT_SUCCESS);
 
 }
+
