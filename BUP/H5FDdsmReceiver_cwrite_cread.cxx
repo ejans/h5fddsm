@@ -13,8 +13,12 @@
 //----------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
 
-        printf("%s\n", argv[1]);
-	printf("%s\n", argv[2]);
+        //printf("%s\n", argv[1]);
+	//printf("%s\n", argv[2]);
+	if (argc!=3) {
+	        printf("usage: ./H5FDdsmReceiver_cwrite_cread IP_ADDRESS PORT\n");
+		return 1;
+	}
 	char fname_src[4] = "dsm";
 	char fname_dst[22] = "h5files/youbottest.h5";
 	char oname_src[6] = "State";
@@ -110,7 +114,7 @@ int main(int argc, char *argv[]) {
 		if (H5Fclose(fid_dst) < 0)
 			goto error;
 
-		error: printf("Error in copy...Exiting\n");
+		error: //printf("Error in copy...Exiting\n");
 		// Sync here
 		MPI_Barrier(comm);
 		number++;
