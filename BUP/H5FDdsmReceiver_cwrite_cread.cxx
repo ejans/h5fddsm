@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 
 	while (dsmManager->WaitForUnlock() != H5FD_DSM_FAIL) {
 
-                sprintf(num, "%d",number);
+                sprintf(num, "%04d",number);
 		printf("%s\n", num);
 		strcpy(oname_dst2, oname_dst);
 		strcat(oname_dst2, num);
