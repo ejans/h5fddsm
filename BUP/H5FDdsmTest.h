@@ -4,8 +4,12 @@
   Module                  : H5FDdsmTest.h
 
   Authors:
-     John Biddiscombe     Jerome Soumagne     Evert Jans
-     biddisco@cscs.ch     soumagne@cscs.ch    evert.jans@mech.kuleuven.be
+     John Biddiscombe     Jerome Soumagne
+     biddisco@cscs.ch     soumagne@cscs.ch
+
+     Long Zhao            Evert Jans
+
+     {firstname.lastname}@mech.kuleuven.be
 
   Copyright (C) CSCS - Swiss National Supercomputing Centre.
   You may use modify and and distribute this code freely providing

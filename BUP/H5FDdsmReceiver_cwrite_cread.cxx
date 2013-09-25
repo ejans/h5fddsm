@@ -1,3 +1,32 @@
+/*=========================================================================
+
+  Project                 : H5FDdsm
+  Module                  : H5FDdsmReceiver_cwrite_cread.cxx
+
+  Authors:
+     John Biddiscombe     Jerome Soumagne     
+     biddisco@cscs.ch     soumagne@cscs.ch   
+
+     Long Zhao            Evert Jans
+
+     {firstname.lastname}@mech.kuleuven.be
+
+  Copyright (C) CSCS - Swiss National Supercomputing Centre.
+  You may use modify and and distribute this code freely providing
+  1) This copyright notice appears on all copies of source code
+  2) An acknowledgment appears with any substantial usage of the code
+  3) If this code is contributed to any other open source project, it
+  must not be reformatted such that the indentation, bracketing or
+  overall style is modified significantly.
+
+  This software is distributed WITHOUT ANY WARRANTY; without even the
+  implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+  This work has received funding from the European Community's Seventh
+  Framework Programme (FP7/2007-2013) under grant agreement 225967 “NextMuSE”
+
+=========================================================================*/
+
 #include "H5FDdsmTest.h"
 #include "H5FDdsmTools.h"
 #include <hdf5.h>
@@ -10,7 +39,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-//----------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
 
         //printf("%s\n", argv[1]);
