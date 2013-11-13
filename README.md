@@ -11,3 +11,9 @@ see COPYING
 # Acknowledgement
 
 This work is based on the [H5FDdsm] library.
+
+The research leading to these results has received funding from the 
+European Community's Seventh Framework Programme under grant 
+agreement no. FP7-600958 (SHERPA: Smart collaboration between Humans and
+ground-aErial Robots for imProving rescuing activities in Alpine
+environments)
